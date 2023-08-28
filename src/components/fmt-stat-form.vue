@@ -4,7 +4,7 @@
   <div class="user-search">
     <label>Du</label> <input v-model="startDate" type="date" @change="change()">
     <label>au</label> <input v-model="endDate" type="date" @change="change()">
-    <span v-for="param, key in params" style="margin-left:10px;" @change="change()">
+    <span v-if="histogram" v-for="param, key in histogram" style="margin-left:10px;" @change="change()">
        <label>{{param.title}}</label>
        <select v-model="values[key]" >
            <option v-if="param.empty" value="">---</option>
@@ -29,37 +29,36 @@ export default {
     },
     params: {
       type: Object,
-      default: () => {}
+      default: null
     }
   },
   watch: {
-    mode (newvalue) {
+    params (newvalue) {
+      console.log(newvalue)
+      if (!newvalue) {
+        return
+      }
+      this.histogram = newvalue.histogram
+      for (var key in this.histogram) {
+        this.values[key] = this.histogram[key].default
+      } 
       this.change()
     }
   },
   computed: {
-//     selectedServices () {
-//       if (this.selectedGroup !== '') {
-//         return this.groups[this.selectedGroup]
-//       } else {
-//         return this.services
-//       }
-//     },
-    
   },
   data () {
     return {
       startDate: null,
       endDate: null,
+      histogram: null,
       values: {
         
       }
     }
   },
   created () {
-    for (var key in this.params) {
-      this.values[key] = this.params[key].default
-    } 
+    
     this.startDate = moment().startOf('month').format('YYYY-MM-DD')
     this.endDate = moment().endOf('month').format('YYYY-MM-DD')
     this.change()
@@ -81,6 +80,9 @@ export default {
       return details
     },
     change () {
+      if (!this.params) {
+        return
+      }
       this.$emit('change', this.details())
     }
   }

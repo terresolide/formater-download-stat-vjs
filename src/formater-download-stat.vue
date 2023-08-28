@@ -27,38 +27,9 @@ export default {
   components: {FmtStatForm},
   data () {
     return {
+      params: null,
       colors: ['#2f7ed8', '#910000', '#8bbc21',   '#1aadce',
         '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#0d233a'],
-      params: {
-          by: {
-            title: 'groupé par ',
-            default: 'day',
-            empty: false,
-            options: {
-              day: 'jour',
-              month: 'mois',
-              year: 'année'
-            }
-          },
-          count: {
-            title: 'en comptant ',
-            default: 'nb',
-            empty: false,
-            options: {
-	            nb: 'le nombre',
-	            size: 'la taille'
-            }
-          },
-          series: {
-            title: 'pour les produits',
-            default: '',
-            empty: true,
-            options: {
-              'enu': 'Position SPOTGINS',
-              'pos': 'Position UGA_Epos-Fr_GG'
-            }
-          }
-      }
     }
   },
   created () {
@@ -76,7 +47,7 @@ export default {
     },
     search(values) {
       console.log(values)
-      var url = this.countUrl + '?'
+      var url = this.url + '/count?'
       var props = []
       for (var prop in values) {
         props.push(prop + '=' + values[prop])
@@ -84,7 +55,6 @@ export default {
       url += props.join('&')
       this.$http.get(url, {credentials:true})
      .then(resp => {
-       console.log(resp.body)
        this.draw(values, resp.body)}, resp => {console.log(resp.status)})
     },
    
@@ -99,19 +69,20 @@ export default {
         if (values.by === 'day')  {
           var categories = null
           var serie = {
-              name: this.params.series.options[key],
+              name: this.params.histogram.series.options[key],
               data: data[key].map(x => [Date.parse(x.date), x[values.count]])
           }
           
         } else {
           var categories = data[key].map(x => x.date)
 	        var serie = {
-	          name: this.params.series.options[key],
+	          name: this.params.histogram.series.options[key],
 	          data: data[key].map(x => x[values.count])
 	        }
         }
         series.push(serie)
       }
+      console.log(series)
       this.drawHistogram('download', 'Téléchargements', categories, series, null)
     },
     drawHistogram (id, title, categories, series, options ) {
