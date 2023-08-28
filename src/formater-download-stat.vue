@@ -19,9 +19,9 @@ import FmtStatForm from './components/fmt-stat-form.vue'
 export default {
   name: 'FmtDownloadStat',
   props: {
-    countUrl: {
+    url: {
       type: String,
-      default: 'http://127.0.0.1:8083/admin/downloads/count'
+      default: 'http://127.0.0.1:8083/admin/downloads'
     }
   },
   components: {FmtStatForm},
@@ -61,7 +61,14 @@ export default {
       }
     }
   },
+  created () {
+    this.initParams()
+  },
   methods: {
+    initParams () {
+      this.$http.get(this.url + '/params', {credentials: true})
+      .then(resp => {this.params = resp.body}, resp => {alert('pb serveur : ' + resp.status)})
+    },
     initSeriesOptions () {
       if (this.params.series) {
        this.series = this.params.series.options
