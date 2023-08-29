@@ -1,6 +1,6 @@
 <template>
 <span>
-  <div style="margin-left:20px;">
+  <div class="fmt-stat-form" >
   <div class="user-search">
     <label>Du</label> <input v-model="startDate" type="date" @change="change()">
     <label>au</label> <input v-model="endDate" type="date" @change="change()">
@@ -88,3 +88,12 @@ export default {
   }
 }
 </script>
+<style scoped>
+.fmt-stat-form {
+}
+.fmt-stat-form label {
+  display: inline;
+  width:auto;
+  
+}
+</style>

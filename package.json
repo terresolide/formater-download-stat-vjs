@@ -1,6 +1,6 @@
 {
   "name": "formater-download-stat-vjs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Download statistic component",
   "production": {
     "url": "https://cdn.jsdelivr.net/gh/terresolide"

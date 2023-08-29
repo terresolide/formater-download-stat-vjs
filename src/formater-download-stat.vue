@@ -1,5 +1,5 @@
 <template>
-  <span>DOWNLOAD
+  <span>
   <fmt-stat-form :params="params"  @change="search"></fmt-stat-form>
   <div id="download"></div>
   <div id="user"></div>
