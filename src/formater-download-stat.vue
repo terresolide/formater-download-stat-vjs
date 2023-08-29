@@ -122,22 +122,30 @@ export default {
             text: ''
           }
         },
-//        tooltip: {
-//           formatter: function(e) {
-//             var currentPoint = this
-//             var tot = 0
-//             var stackValues = '<b>' + this.x.replaceAll('-', '/') + '</b><br />'
-//               currentPoint.points.forEach(function(point, i) {
-//                   stackValues += '<span style="color: ' + point.color + '">\u25CF</span> ' + series[i].name + ': ' + point.y + '<br/>'
-//                   tot += point.y
-//               })
-//             return stackValues +
-//               '<span style="margin-left:10px;font-weight:700">Total: </span>' + tot;
-//           },
+       tooltip: {
+          formatter: function(e) {
+            var currentPoint = this
+            var tot = 0
+            var x = this.x
+            if (typeof x !== 'string') {
+              x = Highcharts.dateFormat('%e %b. %Y', new Date(this.x))
+            }
+
+            var stackValues = '<b>' + x + '</b><br />'
+              currentPoint.points.forEach(function(point, i) {
+                  stackValues += '<span style="color: ' + point.color + '">\u25CF</span> ' + series[i].name + ': ' + point.y + '<br/>'
+                  tot += point.y
+              })
+            if (series.length <= 1) {
+              return stackValues
+            }
+            return stackValues +
+              '<span style="margin-left:10px;font-weight:700">Total: </span>' + tot;
+          },
   
-//           shared: true,
-//           useHTML: true
-//         },
+          shared: true,
+          useHTML: true
+        },
         plotOptions: {
           column: {
             stacking: 'normal',
