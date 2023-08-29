@@ -2,6 +2,7 @@
   <span>DOWNLOAD
   <fmt-stat-form :params="params"  @change="search"></fmt-stat-form>
   <div id="download"></div>
+  <div id="user"></div>
   </span>
 </template>
 <script>
@@ -63,36 +64,52 @@ export default {
       url += props.join('&')
       this.$http.get(url, {credentials:true})
      .then(resp => {
-       this.draw(values, resp.body)}, resp => {console.log(resp.status)})
+       this.draw('download', values, resp.body)}, resp => {console.log(resp.status)})
+     
+     var url = this.url + '/user?'
+     url += props.join('&')
+     this.$http.get(url, {credentials:true})
+     .then(resp => {
+       this.draw('user', values, resp.body)}, resp => {console.log(resp.status)})
     },
    
-    draw (values, data) {
-      if (values.by === 'day') {
-        
-      }
+    draw (id, values, data) {
+      
       var series = []
-      for (var key in data) {
-        console.log(data[key])
-        
-        if (values.by === 'day')  {
-          var categories = null
-          var serie = {
-              name: this.params.histogram.series.options[key],
-              color: this.colors[key],
-              data: data[key].map(x => [Date.parse(x.date), x[values.count]])
-          }
-          
-        } else {
-          var categories = data[key].map(x => x.date)
-	        var serie = {
-	          name: this.params.histogram.series.options[key],
-	          data: data[key].map(x => x[values.count])
+      if (id === 'download') {
+	      for (var key in data) {
+	        
+	        if (values.by === 'day')  {
+	          var categories = null
+	          var serie = {
+	              name: this.params.histogram.series.options[key],
+	              color: this.colors[key],
+	              data: data[key].map(x => [Date.parse(x.date), x[values.count]])
+	          }
+	          
+	        } else {
+	          var categories = data[key].map(x => x.date)
+		        var serie = {
+		          name: this.params.histogram.series.options[key],
+		          color: this.colors[key],
+		          data: data[key].map(x => x[values.count])
+		        }
 	        }
-        }
-        series.push(serie)
+	        series.push(serie)
+	      }
+	      this.drawHistogram(id, 'Téléchargements par date', categories, series, null)
+      } else if (id === 'user') {
+         var categories = data.map(x => x.user)
+         
+         var series = [{
+             name: 'Total',
+             color: 'green',
+             data: data.map(x => x[values.count])
+         }]
+         console.log(series)
+         this.drawHistogram(id, 'Téléchargements par utilisateur', categories, series, null)
       }
-      console.log(series)
-      this.drawHistogram('download', 'Téléchargements', categories, series, null)
+      
     },
     drawHistogram (id, title, categories, series, options ) {
       var colors = this.colors
@@ -136,7 +153,7 @@ export default {
             var currentPoint = this
             var tot = 0
             var x = this.x
-            if (typeof x !== 'string') {
+            if (id === 'download' && typeof x !== 'string') {
               x = Highcharts.dateFormat('%e %b. %Y', new Date(this.x))
             }
 
