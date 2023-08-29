@@ -28,8 +28,9 @@ export default {
   data () {
     return {
       params: null,
-      colors: ['#2f7ed8', '#910000', '#8bbc21',   '#1aadce',
+      defaultColors: ['#2f7ed8', '#910000', '#8bbc21',   '#1aadce',
         '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#0d233a'],
+      colors: {}
     }
   },
   created () {
@@ -38,7 +39,14 @@ export default {
   methods: {
     initParams () {
       this.$http.get(this.url + '/params', {credentials: true})
-      .then(resp => {this.params = resp.body}, resp => {alert('pb serveur : ' + resp.status)})
+      .then(resp => {
+        this.params = resp.body
+        var i = 0
+        for (var key in this.params.histogram.series.options) {
+          this.colors[key] = this.defaultColors[i]
+          i++
+        }
+      }, resp => {alert('pb serveur : ' + resp.status)})
     },
     initSeriesOptions () {
       if (this.params.series) {
@@ -70,6 +78,7 @@ export default {
           var categories = null
           var serie = {
               name: this.params.histogram.series.options[key],
+              color: this.colors[key],
               data: data[key].map(x => [Date.parse(x.date), x[values.count]])
           }
           
@@ -102,7 +111,7 @@ export default {
         credits: {
           enabled:false
         },
-        colors: colors,
+//        colors: colors,
 //         legend: {
 //           labelFormatter: function() {
 //             return this.name
@@ -142,7 +151,6 @@ export default {
             return stackValues +
               '<span style="margin-left:10px;font-weight:700">Total: </span>' + tot;
           },
-  
           shared: true,
           useHTML: true
         },
