@@ -74,7 +74,10 @@ export default {
     },
    
     draw (id, values, data) {
-      
+      var count = 'nb'
+      if (values.count) {
+        count = values.count
+      }
       var series = []
       if (id === 'download') {
 	      for (var key in data) {
@@ -84,7 +87,7 @@ export default {
 	          var serie = {
 	              name: this.params.histogram.series.options[key],
 	              color: this.colors[key],
-	              data: data[key].map(x => [Date.parse(x.date), x[values.count]])
+	              data: data[key].map(x => [Date.parse(x.date), x[count]])
 	          }
 	          
 	        } else {
@@ -92,7 +95,7 @@ export default {
 		        var serie = {
 		          name: this.params.histogram.series.options[key],
 		          color: this.colors[key],
-		          data: data[key].map(x => x[values.count])
+		          data: data[key].map(x => x[count])
 		        }
 	        }
 	        series.push(serie)
@@ -104,7 +107,7 @@ export default {
          var series = [{
              name: 'Total',
              color: 'green',
-             data: data.map(x => x[values.count])
+             data: data.map(x => x[count])
          }]
          console.log(series)
          this.drawHistogram(id, 'Téléchargements par utilisateur', categories, series, null)
