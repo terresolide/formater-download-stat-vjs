@@ -85,7 +85,7 @@ export default {
 	        if (values.by === 'day')  {
 	          var categories = null
 	          var serie = {
-	              name: this.params.histogram.series.options[key],
+	              name: this.params.histogram.series.options[key] || 'inconnu',
 	              color: this.colors[key],
 	              data: data[key].map(x => [Date.parse(x.date), x[count]])
 	          }
@@ -93,7 +93,7 @@ export default {
 	        } else {
 	          var categories = data[key].map(x => x.date)
 		        var serie = {
-		          name: this.params.histogram.series.options[key],
+		          name: this.params.histogram.series.options[key] || 'inconnu',
 		          color: this.colors[key],
 		          data: data[key].map(x => x[count])
 		        }
@@ -102,14 +102,21 @@ export default {
 	      }
 	      this.drawHistogram(id, 'Téléchargements par date', categories, series, null)
       } else if (id === 'user') {
-         var categories = data.map(x => x.user)
-         
-         var series = [{
-             name: 'Total',
-             color: 'green',
-             data: data.map(x => x[count])
-         }]
-         console.log(series)
+         for (var key in data) {
+          
+            var categories = data[key].map(x => x.user)
+            console.log(categories[0]);
+            if (categories[0] === null) {
+              categories[0] = 'anonyme'
+            }
+            var serie = {
+              name: this.params.histogram.series.options[key] || 'inconnu',
+              color: this.colors[key],
+              data: data[key].map(x => x[count])
+            }
+            series.push(serie)
+          }
+          
          this.drawHistogram(id, 'Téléchargements par utilisateur', categories, series, null)
       }
       
