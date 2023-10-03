@@ -43,13 +43,22 @@ export default {
       .then(resp => {
         this.params = resp.body
         var i = 0
-        for (var key in this.params.histogram.series.options) {
+        var index = 'series'
+        if (this.params.histogram.groupBy) {
+          index = this.params.histogram.groupBy.default
+        }
+        console.log(index)
+        for (var key in this.params.histogram[index].options) {
           this.colors[key] = this.defaultColors[i]
           i++
         }
       }, resp => {alert('pb serveur : ' + resp.status)})
     },
     initSeriesOptions () {
+      if (this.params.groupBy) {
+        this.series = this.params[this.params.groupBy.default].options
+        console.log(this.series)
+      }
       if (this.params.series) {
        this.series = this.params.series.options
       }
@@ -79,13 +88,19 @@ export default {
         count = values.count
       }
       var series = []
+      var index = 'series'
+      if (values.groupBy) {
+        index = values.groupBy
+      }
+      console.log(index)
       if (id === 'download') {
 	      for (var key in data) {
 	        
 	        if (values.by === 'day')  {
 	          var categories = null
+	          
 	          var serie = {
-	              name: this.params.histogram.series.options[key] || 'inconnu',
+	              name: this.params.histogram[index].options[key] || 'inconnu',
 	              color: this.colors[key],
 	              data: data[key].map(x => [Date.parse(x.date), x[count]])
 	          }
@@ -110,7 +125,7 @@ export default {
               categories[0] = 'anonyme'
             }
             var serie = {
-              name: this.params.histogram.series.options[key] || 'inconnu',
+              name: this.params.histogram[index].options[key] || 'inconnu',
               color: this.colors[key],
               data: data[key].map(x => x[count])
             }
