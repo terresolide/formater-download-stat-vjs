@@ -1,8 +1,23 @@
 <template>
   <span>
   <fmt-stat-form :params="params"  @change="search"></fmt-stat-form>
-  <div id="download"></div>
-  <div id="user"></div>
+  
+   <div v-if="total" style="margin-left:10px;margin-bottom:20px;">
+      <h3 style="font-family: Helvetica, Arial, sans-serif;">Total</h3>
+      <div style="margin-left:10px;">
+	      <div v-for="color, key in colors">
+	         <div><div style="width:20px;height:20px;display:inline-block;" :style="{backgroundColor: color}"></div> 
+	           {{params.histogram[groupBy].options[key]}}: {{total.groups[key] || 0 }}</div>
+	      </div>
+     
+	      <div style="width:200px;border-top:1px solid darkgrey;font-weight:700;">
+	      Total: {{total.total}}
+	      </div>
+   </div>
+   </div>
+
+   <div id="download"></div>
+   <div id="user"></div>
   </span>
 </template>
 <script>
@@ -25,13 +40,27 @@ export default {
       default: 'http://127.0.0.1:8083/admin/downloads'
     }
   },
+  computed: {
+    colors () {
+      var cls = {}
+      cls['unknown'] = this.defaultColors[0]
+      var i = 1
+      for (var key in this.params.histogram[this.groupBy].options) {
+        cls[key] = this.defaultColors[i]
+        i++
+      }
+      
+      return cls
+    }
+  },
   components: {FmtStatForm},
   data () {
     return {
       params: null,
+      total: null,
+      groupBy: 'series',
       defaultColors: ['#2f7ed8', '#910000', '#8bbc21',   '#1aadce',
-        '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#0d233a'],
-      colors: {}
+        '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#0d233a']
     }
   },
   created () {
@@ -43,15 +72,14 @@ export default {
       .then(resp => {
         this.params = resp.body
         var i = 0
-        var index = 'series'
         if (this.params.histogram.groupBy) {
-          index = this.params.histogram.groupBy.default
+          this.groupBy = this.params.histogram.groupBy.default
         }
-        console.log(index)
-        for (var key in this.params.histogram[index].options) {
-          this.colors[key] = this.defaultColors[i]
-          i++
-        }
+//        console.log(index)-
+//        for (var key in this.params.histogram[index].options) {
+//          this.colors[key] = this.defaultColors[i]-->
+//           i++
+//         }-
       }, resp => {alert('pb serveur : ' + resp.status)})
     },
     initSeriesOptions () {
@@ -73,7 +101,8 @@ export default {
       url += props.join('&')
       this.$http.get(url, {credentials:true})
      .then(resp => {
-       this.draw('download', values, resp.body)}, resp => {console.log(resp.status)})
+       this.total = resp.body.total
+       this.draw('download', values, resp.body.values)}, resp => {console.log(resp.status)})
      
      var url = this.url + '/user?'
      url += props.join('&')
@@ -90,9 +119,8 @@ export default {
       var series = []
       var index = 'series'
       if (values.groupBy) {
-        index = values.groupBy
+        this.groupBy = values.groupBy
       }
-      console.log(index)
       if (id === 'download') {
 	      for (var key in data) {
 	        
@@ -100,7 +128,7 @@ export default {
 	          var categories = null
 	          
 	          var serie = {
-	              name: this.params.histogram[index].options[key] || 'inconnu',
+	              name: this.params.histogram[this.groupBy].options[key] || 'unknown',
 	              color: this.colors[key],
 	              data: data[key].map(x => [Date.parse(x.date), x[count]])
 	          }
@@ -108,7 +136,7 @@ export default {
 	        } else {
 	          var categories = data[key].map(x => x.date)
 		        var serie = {
-		          name: this.params.histogram.series.options[key] || 'inconnu',
+		          name: this.params.histogram[this.groupBy].options[key] || 'unknown',
 		          color: this.colors[key],
 		          data: data[key].map(x => x[count])
 		        }
@@ -122,10 +150,10 @@ export default {
             var categories = data[key].map(x => x.user)
             console.log(categories[0]);
             if (categories[0] === null) {
-              categories[0] = 'anonyme'
+              categories[0] = 'iconnu'
             }
             var serie = {
-              name: this.params.histogram[index].options[key] || 'inconnu',
+              name: this.params.histogram[this.groupBy].options[key] || 'unknown',
               color: this.colors[key],
               data: data[key].map(x => x[count])
             }

@@ -4,7 +4,7 @@
   <div class="user-search">
     <label>Du</label> <input v-model="startDate" type="date" @change="change()">
     <label>au</label> <input v-model="endDate" type="date" @change="change()">
-    <span v-if="histogram" v-for="param, key in histogram" style="margin-left:10px;" @change="change()">
+    <span v-if="histogram" v-for="param, key in histogram" style="margin-left:10px;display:inline-block;" @change="change()">
        <label>{{param.title}}</label>
        <select v-model="values[key]" >
            <option v-if="param.empty" value="">---</option>
