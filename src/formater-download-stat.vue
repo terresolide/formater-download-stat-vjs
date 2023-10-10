@@ -5,13 +5,14 @@
    <div v-if="total" style="margin-left:10px;margin-bottom:20px;">
       <h3 style="font-family: Helvetica, Arial, sans-serif;">Total</h3>
       <div style="margin-left:10px;">
-	      <div v-for="color, key in colors">
+	      <div v-for="color, key in colors" v-if="!(key === 'unknown' && !params.histogram[groupBy].options[key])">
 	         <div><div style="width:20px;height:20px;display:inline-block;" :style="{backgroundColor: color}"></div> 
-	           {{params.histogram[groupBy].options[key]}}: {{total.groups[key] || 0 }}</div>
+	           {{params.histogram[groupBy].options[key]}}: <span v-if="total.groups[key]">{{total.groups[key].toLocaleString('fr-FR')}}</span>
+	           <span v-else>0</span></div>
 	      </div>
      
 	      <div style="width:200px;border-top:1px solid darkgrey;font-weight:700;">
-	      Total: {{total.total}}
+	      Total: {{total.total.toLocaleString('fr-FR')}}
 	      </div>
    </div>
    </div>
