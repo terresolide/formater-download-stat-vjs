@@ -18,7 +18,8 @@
    </div>
 
    <div id="download"></div>
-   <div id="user"></div>
+   <div v-if="mode === 'user'" id="user"></div>
+   <div v-else-if="mode === 'country'" id="country"></div>
   </span>
 </template>
 <script>
@@ -39,6 +40,14 @@ export default {
     url: {
       type: String,
       default: 'http://127.0.0.1:8083/admin/downloads'
+    },
+    mode: {
+      type: String,
+      default: 'user'
+    },
+    title: {
+      type: String,
+      default: 'Téléchargement par utilisateur'
     }
   },
   computed: {
@@ -104,12 +113,14 @@ export default {
      .then(resp => {
        this.total = resp.body.total
        this.draw('download', values, resp.body.values)}, resp => {console.log(resp.status)})
-     
-     var url = this.url + '/user?'
-     url += props.join('&')
-     this.$http.get(url, {credentials:true})
-     .then(resp => {
-       this.draw('user', values, resp.body)}, resp => {console.log(resp.status)})
+    // if (this.mode === 'user') {
+      var url = this.url + '/' + this.mode + '?'
+      url += props.join('&')
+      this.$http.get(url, {credentials:true})
+      .then(resp => {
+        this.draw(this.mode, values, resp.body)}, resp => {console.log(resp.status)})
+    //  }
+      
     },
    
     draw (id, values, data) {
@@ -145,10 +156,10 @@ export default {
 	        series.push(serie)
 	      }
 	      this.drawHistogram(id, 'Téléchargements par date', categories, series, null)
-      } else if (id === 'user') {
+      } else if (id === this.mode) {
          for (var key in data) {
           
-            var categories = data[key].map(x => x.user)
+            var categories = data[key].map(x => x[this.mode])
             console.log(categories[0]);
             if (categories[0] === null) {
               categories[0] = 'iconnu'
@@ -161,7 +172,7 @@ export default {
             series.push(serie)
           }
           
-         this.drawHistogram(id, 'Téléchargements par utilisateur', categories, series, null)
+         this.drawHistogram(id, this.title, categories, series, null)
       }
       
     },
