@@ -20,6 +20,31 @@
    <div id="download"></div>
    <div v-if="mode === 'user'" id="user"></div>
    <div v-else-if="mode === 'country'" id="country"></div>
+   <div v-if="details" class="details" style="margin-left:10px;">
+
+      <h3>Détails</h3>
+      <table>
+        <thead>
+          <th>Ville</th>
+          <th>rdns</th>
+          <th>ISP</th>
+          <th>Total</th>
+        </thead>
+        <tbody>
+        <template v-for="item in details">
+            <tr><th colspan=4 style="text-align:left;">{{item.country}}</th></tr>
+            <tr v-for="line in item.list">
+              <td>{{line.city}}</td>
+              <td>{{line.rdns}}</td>
+              <td>{{line.isp}}</td>
+              <td style="text-align:right;">{{line.count}}</td>
+
+            </tr>
+          </template>
+          </tbody>
+        </table>
+      
+   </div>
   </span>
 </template>
 <script>
@@ -68,6 +93,7 @@ export default {
     return {
       params: null,
       total: null,
+      details: null,
       groupBy: 'series',
       defaultColors: ['#2f7ed8', '#910000', '#8bbc21',   '#1aadce',
         '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#0d233a']
@@ -120,7 +146,16 @@ export default {
       .then(resp => {
         this.draw(this.mode, values, resp.body)}, resp => {console.log(resp.status)})
     //  }
-      
+      if (this.mode === 'country') {
+        this.details = null
+        var url = this.url + '/rdns?'
+        url += props.join('&')
+        this.$http.get(url, {credentials:true})
+        .then(resp => {
+          this.details = resp.body
+          
+        })
+      }
     },
    
     draw (id, values, data) {
@@ -251,3 +286,24 @@ export default {
   }
 }
 </script>
+<style>
+svg, div.details {
+  font-family: Helvetica, Arial, sans-serif;
+}
+</style>
+<style scoped>
+  table, td {
+     border-collapse: collapse;
+    border: 1px solid gray;
+
+  }
+  td {
+    padding:2px 5px;
+  }
+  th {
+    border:1px solid gray;
+    background: #f1f1f1;
+    padding: 5px;
+  }
+
+</style>
